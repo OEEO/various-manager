@@ -1,8 +1,8 @@
 <template>
   <div class="photos">
     <div class="img-wrap" v-for="(item, index) in imgs" :key="index">
-      <img :src="item.src" :alt="item.title" class="img">
-      <p>{{ item.title }}</p>
+      <img :src="item.url" :alt="item.imgTitle" class="img">
+      <p>{{ item.imgTitle }}</p>
     </div>
   </div>
 </template>
@@ -12,16 +12,51 @@ export default {
   name: 'Photos',
   data () {
     return {
-      imgs: [
-        { id: 1, title: '图片1', src: '../images/1.png' },
-        { id: 2, title: '图片2', src: '../images/2.png' },
-        { id: 3, title: '图片3', src: '../images/3.png' }
-      ]
+      imgs: []
     }
+  },
+  methods: {
+    getImagesList () {
+      let that = this
+      this.axios.get('/images')
+        .then(res => {
+          that.imgs = res.data
+        })
+    }
+  },
+  beforeCreate () {
+    console.log('Photos beforeCreate')
+  },
+  created () {
+    console.log('Photos created')
+  },
+  beforeMount () {
+    this.getImagesList()
+  },
+  mounted () {
+    console.log('Photos mounted')
+  },
+  beforeUpdate () {
+    console.log('Photos beforeUpdate')
+  },
+  updated () {
+    console.log('Photos updated')
+  },
+  beforeDestroy () {
+    console.log('Photos beforeDestroy')
+  },
+  destroyed () {
+    console.log('Photos destroyed')
   }
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+  .photos{
+    .img{
+      width: 500px;
+      display: block;
+      margin: 20px auto 0;
+    }
+  }
 </style>

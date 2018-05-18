@@ -6,6 +6,11 @@ const express = require('express')
 
 const app = express()
 
+let token = ''
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded())
+
 app.use('/', api)
 
 app.listen(80)
