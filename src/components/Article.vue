@@ -9,11 +9,18 @@
         <ul>
           <li
             class="article-item"
-            v-for="item in articles"
-            :key="item.id"
-            @click="goToArticleDetail(item.id)">
+            v-for="(item, index) in articles"
+            :key="item._id"
+            @click="goToArticleDetail(item._id)"
+            @mouseenter="articleEnter(index)"
+            @mouseleave="articleLeave">
             <h1>{{ item.title }}</h1>
             <p>{{ item.content }}</p>
+            <el-button
+              type="danger"
+              class="del-article-btn"
+              v-show="curIndex === index"
+              @click.stop="delThisArticle(item._id)">删除</el-button>
           </li>
         </ul>
       </div>
@@ -37,15 +44,24 @@
 <script>
 export default {
   name: 'Article',
+  props: ['notCreate'],
   data () {
     return {
       articles: [],
       create: false,
       title: '',
-      content: ''
+      content: '',
+      delBtnShow: false,
+      curIndex: ''
     }
   },
   methods: {
+    articleEnter (index) {
+      this.curIndex = index
+    },
+    articleLeave (e) {
+      this.curIndex = ''
+    },
     getArticle () {
       let that = this
       this.axios.get('/article')
@@ -66,58 +82,55 @@ export default {
       this.create = true
     },
     submitNewArticle () {
+      let that = this
       this.axios.post('/createArticle', {
-        title: this.title,
-        content: this.content
+        title: that.title,
+        content: that.content
       })
         .then(res => {
-          console.log(res)
-          if (res.data === 'success') {
-            console.log('发表成功')
-          }
+          console.log('发表成功')
+          that.getArticle()
+          that.create = false
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+    delThisArticle (id) {
+      console.log(id)
+      this.axios.post('/deleteArticle', {
+        id: id
+      })
+        .then(res => {
+          console.log('删除成功')
+          this.getArticle()
         })
         .catch(error => {
           console.log(error)
         })
     }
   },
-  beforeCreate () {
-    console.log('Article beforeCreate')
-  },
-  created () {
-    console.log('Article created')
-  },
   beforeMount () {
     this.getArticle()
-  },
-  mounted () {
-    console.log('Article mounted')
-  },
-  beforeUpdate () {
-    console.log('Article beforeUpdate')
-  },
-  updated () {
-    console.log('Article updated')
-  },
-  beforeDestroy () {
-    console.log('Article beforeDestroy')
-  },
-  destroyed () {
-    console.log('Article destroyed')
   }
-
 }
 </script>
 
 <style lang="scss" scoped>
   .article{
     .article-item{
+      position: relative;
       cursor: pointer;
       list-style: none;
       width: 500px;
       margin: 20px auto 0;
       padding: 20px;
       background-color: #aaa;
+      .del-article-btn {
+        position: absolute;
+        right: 30px;
+        top: 30px;
+      }
     }
   }
 </style>

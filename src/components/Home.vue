@@ -16,6 +16,11 @@
 <script>
 export default {
   name: 'Home',
+  methods: {
+
+  },
+  computed: {
+  },
   beforeCreate () {
     console.log('Home beforeCreate')
   },
