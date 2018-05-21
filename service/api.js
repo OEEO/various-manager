@@ -3,22 +3,23 @@ const router = express.Router()
 const moment = require('moment')
 const mongoose = require('mongoose')
 
-const blogMongoUrl = 'mongodb://127.0.0.1:27017/blog'
-
 // article数据模型
 const articleSchema = mongoose.Schema({
   title: String,
   content: String
 })
-
 const Article = mongoose.model('article', articleSchema)
 
+// user数据模型
 const userSchema = mongoose.Schema({
   username: String,
   password: String
 })
-
 const User = mongoose.model('user', userSchema)
+
+// 连接数据库 blog
+const blogMongoUrl = 'mongodb://127.0.0.1:27017/blog'
+mongoose.connect(blogMongoUrl)
 
 router.use((req, res, next) => {
   // console.log('连接时间：' + moment().format('YYYY年MM月DD日 HH:mm:ss'))
@@ -39,11 +40,37 @@ router.get('/', (req, res) => {
   res.send('这是首页')
 })
 
+// 登录接口
+router.post('/api/login', (req, res) => {
+  let username = req.body.username
+  let password = req.body.password
+  User.findOne({
+    username: username,
+    password: password
+  })
+    .then(data => {
+      console.log(data)
+      if (data) {
+        res.send({
+          success: 'success',
+          username: username,
+          msg: '登录成功'
+        })
+      } else {
+        res.send({
+          fail: 'fail',
+          msg: '用户名或密码不正确'
+        })
+      }
+    })
+    .catch(error => {
+      console.log('发生错误', error)
+    })
+})
+
+// 注册前查询用户名是否已存在
 router.get('/api/username', (req, res) => {
-  const url = blogMongoUrl
-  mongoose.connect(url)
   let username = req.query.username
-  console.log(username)
   User.findOne({
     username: username
   })
@@ -61,46 +88,16 @@ router.get('/api/username', (req, res) => {
         })
       }
     })
-    .catch(data => {
+    .catch(error => {
       res.send({
-        exist: false,
+        error: error,
         msg: '发生错误'
       })
     })
 })
 
-router.post('/api/login', (req, res) => {
-  const url = blogMongoUrl
-  mongoose.connect(url)
-  let username = req.body.username
-  let password = req.body.password
-  console.log(username, password)
-  User.findOne({
-    username: username,
-    password: password
-  })
-    .then(data => {
-      console.log(data)
-      if (data) {
-        res.send({
-          success: 'success',
-          username: username,
-          msg: '登录成功'
-        })
-      } else {
-        res.send({
-          error: 'error'
-        })
-      }
-    })
-    .catch(error => {
-      console.log('登录失败')
-    })
-})
-
+// 注册接口
 router.post('/api/register', (req, res) => {
-  let url = blogMongoUrl
-  mongoose.connect(url)
   let username = req.body.username
   let password = req.body.password
   let newUser = new User({
@@ -108,39 +105,50 @@ router.post('/api/register', (req, res) => {
     password: password
   })
   let addUser = new Promise((resolve, reject) => {
-    mongoose.connect(url)
-    const db = mongoose.connection
-    db.once('open', () => {
-      newUser.save((err, res) => {
-        if (err) {
-          console.log(err)
-          return
-        }
-        resolve(res)
-      })
+    newUser.save((err, data) => {
+      if (err) {
+        reject(err)
+      }
+      resolve(data)
     })
   })
   addUser.then(data => {
-    res.send({
-      username: data.username
-    })
+    if (data) {
+      res.send({
+        success: 'success',
+        username: data.username,
+        msg: '注册成功'
+      })
+    } else {
+      res.send({
+        fail: 'fail',
+        msg: '注册失败'
+      })
+    }
   })
+    .catch(error => {
+      res.send({
+        error: error,
+        msg: '发生错误'
+      })
+    })
 })
 
+// 获取文章接口
 router.get('/api/article', (req, res) => {
-  const url = blogMongoUrl
-  mongoose.connect(url)
   Article.find((err, articles) => {
     if (err) {
       res.send({
-        error: '没有文章'
+        fail: 'fail',
+        msg: '没有文章'
       })
-      return
     }
     res.send(JSON.stringify(articles))
   })
 })
 
+// 获取图片接口
+// TODO: 获取图片接口
 router.get('/api/images', (req, res) => {
   let result = []
   for (let i = 1; i < 6; i++) {
@@ -153,6 +161,12 @@ router.get('/api/images', (req, res) => {
   res.send(JSON.stringify(result))
 })
 
+// TODO: 上传图片接口
+router.post('/api/addImage', (req, res) => {
+
+})
+
+// TODO: 文章详情页接口
 router.get('/api/articleDetail', (req, res) => {
   let id = req.query.id
   let result = {
@@ -164,60 +178,54 @@ router.get('/api/articleDetail', (req, res) => {
   res.send(JSON.stringify(result))
 })
 
+// 添加文章接口
 router.post('/api/createArticle', (req, res) => {
-  const url = blogMongoUrl
   let article = req.body
   let title = article.title
   let content = article.content
   let insertData = new Promise((resolve, reject) => {
-    let msg = ''
-    mongoose.connect(url)
-    const db = mongoose.connection
-    db.on('error', () => {
-      res.send({
-        err: '连接数据库失败'
-      })
+    const newArticle = new Article({
+      title: title,
+      content: content
     })
-    db.once('open', () => {
-      console.log('数据库连接成功')
-      const newArticle = new Article({
-        title: title,
-        content: content
-      })
-      newArticle.save((err, res) => {
-        if (err) {
-          reject(err)
-        }
-        resolve('success')
-      })
+    newArticle.save((err, res) => {
+      if (err) {
+        reject(err)
+      }
+      resolve()
     })
   })
   insertData
-    .then(msg => {
+    .then(() => {
       res.send({
-        success: msg
+        success: 'success',
+        msg: '创建文章成功'
       })
     })
     .catch(err => {
       res.send({
-        error: err
+        fail: 'fail',
+        msg: '创建文章失败' + err
       })
     })
 })
 
+// 删除文章接口
 router.post('/api/deleteArticle', (req, res) => {
   let id = req.body.id
-  console.log(id)
   Article.deleteOne({_id: id})
-    .then(res => {
-      res.send({
-        msg: `${id}删除成功`
-      })
+    .then(data => {
+      console.log(data)
+      if (data) {
+        res.send({
+          msg: `${id}删除成功`
+        })
+      }
     })
     .catch(error => {
       res.send({
         error: 'error',
-        msg: `${id}删除失败`
+        msg: `${id}删除失败${error}`
       })
     })
 })
