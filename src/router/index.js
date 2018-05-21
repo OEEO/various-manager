@@ -20,11 +20,6 @@ export default new Router({
       component: Home,
       children: [
         {
-          path: '/',
-          name: 'Article',
-          component: Article
-        },
-        {
           path: '/Article',
           name: 'Article',
           component: Article

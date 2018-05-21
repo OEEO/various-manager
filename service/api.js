@@ -1,8 +1,11 @@
 const express = require('express')
 const router = express.Router()
+const moment = require('moment')
+const MongoClient = require('mongodb').MongoClient
+const mongoose = require('mongoose')
 
 router.use((req, res, next) => {
-  console.log('打开时间：' + Date.now())
+  // console.log('连接时间：' + moment().format('YYYY年MM月DD日 HH:mm:ss'))
   next()
 })
 
@@ -24,6 +27,7 @@ router.post('/api/login', (req, res) => {
   let username = req.body.username
   let password = req.body.password
   let msg = ''
+  console.log(req.body)
   if (username === '814731008') {
     msg = 'success'
     if (password !== '123456') {
@@ -42,6 +46,52 @@ router.post('/api/login', (req, res) => {
 })
 
 router.get('/api/article', (req, res) => {
+  const url = 'mongodb://127.0.0.1:27017/article'
+  mongoose.connect(url)
+  const db = mongoose.connection
+  db.on('error', () => {
+    console.log('文章连接失败')
+  })
+  db.once('open', () => {
+    console.log('文章连接成功')
+    const kittySchema = mongoose.Schema({
+      name: String
+    })
+    kittySchema.methods.sayName = function () {
+      let greeting = this.name
+        ? '我的名字是：' + this.name
+        : '我还没有名字'
+      console.log(greeting)
+    }
+    const Kitten = mongoose.model('Kitten', kittySchema)
+    let yan = new Kitten({ name: 'yanshiyu' })
+    let saveData = new Promise(resolve => {
+      yan.save((err, res) => {
+        if (err) {
+          console.log('保存到数据库失败')
+          return
+        }
+        resolve()
+      })
+    })
+    saveData.then(() => {
+      Kitten.find((err, res) => {
+        if (err) {
+          console.log('读取数据失败')
+          return
+        }
+        console.log('读取数据成功' + res)
+      })
+    })
+  })
+  // let Person = mongoose.model('Person', yourSchema);
+  //
+  // Person.findOne({ 'name.last': 'Ghost' }, 'name occupation', function (err, person) {
+  //   if (err) return handleError(err)
+  //   console.log('%s %s is a %s.', person.name.first, person.name.last,
+  //     person.occupation)
+  // })
+
   let articles = [
     { id: 1, title: '文章1', content: '内容1' },
     { id: 2, title: '文章2', content: '内容2' },
@@ -74,8 +124,41 @@ router.get('/api/articleDetail', (req, res) => {
 })
 
 router.post('/api/createArticle', (req, res) => {
-  console.log(req.body)
-  res.send('这是创建文章页')
+  const url = 'mongodb://127.0.0.1:27017/article'
+  let article = req.body
+  let title = article.title
+  let content = article.content
+  let insertData = new Promise((resolve, reject) => {
+    let msg = ''
+    MongoClient.connect(url, (err, client) => {
+      if (err) {
+        console.log('数据库连接失败')
+        reject(msg)
+        return
+      }
+      console.log('数据库连接成功')
+      const db = client.db('article')
+      db.collection('article1').insertOne({
+        'title': title,
+        'content': content
+      }, (err, result) => {
+        if (err) {
+          console.log('插入数据失败')
+          reject(msg)
+          return
+        }
+        msg = 'success'
+        resolve(msg)
+      })
+    })
+  })
+  insertData.then(msg => {
+    if (msg) {
+      res.send('success')
+    } else {
+      res.send('error')
+    }
+  })
 })
 
 module.exports = router

@@ -6,7 +6,7 @@
     </div>
     <div>
       <label for="password">密码</label>
-      <el-input id="password" v-model="password"></el-input>
+      <el-input id="password" v-model="password" @keyup.enter.native="login"></el-input>
     </div>
     <div>
       <el-button type="primary" @click="login">登录</el-button>
@@ -19,8 +19,8 @@ export default {
   name: 'Login',
   data () {
     return {
-      username: '',
-      password: ''
+      username: '814731008',
+      password: '123456'
     }
   },
   methods: {
@@ -29,16 +29,6 @@ export default {
         username: this.username,
         password: this.password
       }
-      function transformRequest (data) {
-        // Do whatever you want to transform the data
-        let ret = ''
-        for (let it in data) {
-          ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-        }
-        return ret
-      }
-      data = transformRequest(data).slice(0, -1)
-      console.log(data)
       this.axios.post('/login', data)
         .then(res => {
           console.log(res.data)
