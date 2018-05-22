@@ -44,12 +44,13 @@
 </template>
 
 <script>
+import cookie from '../utils/cookie'
 export default {
   name: 'Login',
   data () {
     return {
-      username: '',
-      password: '',
+      username: '王朝振',
+      password: '123456',
       // 注册
       reUsername: '',
       rePassword: '',
@@ -69,6 +70,9 @@ export default {
           if (res.data.success) {
             console.log('登录成功')
             let username = res.data.username
+            let token = res.data.token
+            console.log(token)
+            cookie.set('token', token)
             that.$router.push({
               path: '/Home/' + username,
               params: {

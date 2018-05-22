@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const moment = require('moment')
 const mongoose = require('mongoose')
-
+const jwt = require('jsonwebtoken')
 // article数据模型
 const articleSchema = mongoose.Schema({
   title: String,
@@ -29,7 +29,7 @@ router.use((req, res, next) => {
 // 解决跨域问题
 router.all('*', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*')
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With')
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With,Authorization')
   res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS')
   res.header('X-Powered-By', ' 3.2.1')
   res.header('Content-Type', 'application/json;charset=utf-8')
@@ -49,12 +49,13 @@ router.post('/api/login', (req, res) => {
     password: password
   })
     .then(data => {
-      console.log(data)
       if (data) {
+        let token = jwt.sign({ username: username }, 'userlogin', {expiresIn: 30})
         res.send({
           success: 'success',
           username: username,
-          msg: '登录成功'
+          msg: '登录成功',
+          token: token
         })
       } else {
         res.send({
@@ -136,15 +137,39 @@ router.post('/api/register', (req, res) => {
 
 // 获取文章接口
 router.get('/api/article', (req, res) => {
-  Article.find((err, articles) => {
-    if (err) {
-      res.send({
-        fail: 'fail',
-        msg: '没有文章'
-      })
-    }
-    res.send(JSON.stringify(articles))
+  let token = req.query.token
+  console.log(req)
+  console.log(token)
+  let jwtVerifyPromise = new Promise((resolve, reject) => {
+    jwt.verify(token, 'userlogin', (err, decode) => {
+      if (err) {
+        console.log('token失效', err)
+        reject(err)
+      } else {
+        console.log('token有效', decode)
+        resolve()
+      }
+    })
   })
+  jwtVerifyPromise.then(() => {
+    Article.find((err, articles) => {
+      if (err) {
+        console.log(err)
+        res.send({
+          fail: 'fail',
+          msg: '没有文章'
+        })
+        return
+      }
+      res.send(JSON.stringify(articles))
+    })
+  })
+    .catch(err => {
+      res.send({
+        tokenIsOutdated: true,
+        msg: err.JsonWebTokenError
+      })
+    })
 })
 
 // 获取图片接口
