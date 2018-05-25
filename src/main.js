@@ -22,16 +22,10 @@ axios.interceptors.request.use(function (config) {
   if (!isFromLogin) {
     // 如果请求不是来自login，请求添加 token
     let token = cookie.get('token')
-    // if (config.method.toLowerCase() === 'post') {
-    //   config.data.token = token
-    // } else {
-    //   let url = config.url
-    //   let tokenStr = url.indexOf('?') === -1 ? `?token=${token}` : `&token=${token}`
-    //   config.url = url + tokenStr
-    // }
     config.headers.Authorization = token
   }
   console.log(config)
+  // 转为 urlencoded、encodeURI
   config.data = qs.stringify(config.data)
   console.log('拦截请求', config)
   return config
@@ -43,8 +37,7 @@ axios.interceptors.request.use(function (config) {
 // 添加一个响应拦截器
 axios.interceptors.response.use(function (response) {
   // 预处理响应数据
-  console.log('响应拦截器')
-  console.log(response)
+  console.log('拦截响应', response)
   if (response.data.tokenIsOutdated) {
     console.log('token过期，请重新登录')
     cookie.clear('token')

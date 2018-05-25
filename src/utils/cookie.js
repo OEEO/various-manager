@@ -4,7 +4,7 @@ cookie.set = function (name, value) {
   let Days = 30
   let exp = new Date()
   exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000)
-  document.cookie = name + '=' + encodeURIComponent (value) + ';expires=' + exp.toGMTString()
+  document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + exp.toGMTString()
 }
 
 cookie.get = function (name) {

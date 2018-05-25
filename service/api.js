@@ -50,7 +50,7 @@ router.post('/api/login', (req, res) => {
   })
     .then(data => {
       if (data) {
-        let token = jwt.sign({ username: username }, 'userlogin', {expiresIn: 30})
+        let token = jwt.sign({ username: username }, 'isUserLogin', {expiresIn: 30000})
         res.send({
           success: 'success',
           username: username,
@@ -66,6 +66,38 @@ router.post('/api/login', (req, res) => {
     })
     .catch(error => {
       console.log('发生错误', error)
+    })
+})
+
+// 验证token
+router.all('*', (req, res, next) => {
+  // 忽略options请求
+  if (req.method.toLowerCase() === 'options') {
+    next()
+    return
+  }
+  let token = req.headers.authorization
+  console.log(token)
+  let jwtVerifyPromise = new Promise((resolve, reject) => {
+    jwt.verify(token, 'isUserLogin', (err, decode) => {
+      if (err) {
+        console.log('token失效', err)
+        reject(err)
+      } else {
+        console.log('token有效', decode)
+        resolve()
+      }
+    })
+  })
+  jwtVerifyPromise
+    .then(() => {
+      next()
+    })
+    .catch(err => {
+      res.send({
+        tokenIsOutdated: true,
+        msg: err.JsonWebTokenError
+      })
     })
 })
 
@@ -137,39 +169,17 @@ router.post('/api/register', (req, res) => {
 
 // 获取文章接口
 router.get('/api/article', (req, res) => {
-  let token = req.query.token
-  console.log(req)
-  console.log(token)
-  let jwtVerifyPromise = new Promise((resolve, reject) => {
-    jwt.verify(token, 'userlogin', (err, decode) => {
-      if (err) {
-        console.log('token失效', err)
-        reject(err)
-      } else {
-        console.log('token有效', decode)
-        resolve()
-      }
-    })
-  })
-  jwtVerifyPromise.then(() => {
-    Article.find((err, articles) => {
-      if (err) {
-        console.log(err)
-        res.send({
-          fail: 'fail',
-          msg: '没有文章'
-        })
-        return
-      }
-      res.send(JSON.stringify(articles))
-    })
-  })
-    .catch(err => {
+  Article.find((err, articles) => {
+    if (err) {
+      console.log(err)
       res.send({
-        tokenIsOutdated: true,
-        msg: err.JsonWebTokenError
+        fail: 'fail',
+        msg: '没有文章'
       })
-    })
+    } else {
+      res.send(JSON.stringify(articles))
+    }
+  })
 })
 
 // 获取图片接口
