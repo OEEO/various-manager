@@ -5,6 +5,7 @@ import Article from '@/components/Article'
 import Photos from '@/components/Photos'
 import Home from '@/components/Home'
 import ArticleDetail from '@/components/ArticleDetail'
+import Post from '@/components/Post'
 
 Vue.use(Router)
 
@@ -33,6 +34,11 @@ export default new Router({
           path: '/Photos',
           name: 'Photos',
           component: Photos
+        },
+        {
+          path: '/Post',
+          name: 'Post',
+          component: Post
         }
       ]
     },

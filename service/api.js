@@ -3,6 +3,7 @@ const router = express.Router()
 const moment = require('moment')
 const mongoose = require('mongoose')
 const jwt = require('jsonwebtoken')
+const formidable = require('formidable')
 // article数据模型
 const articleSchema = mongoose.Schema({
   title: String,
@@ -38,6 +39,12 @@ router.all('*', (req, res, next) => {
 
 router.get('/', (req, res) => {
   res.send('这是首页')
+})
+
+// 富文本编辑器
+router.post('/api/newPost', (req, res) => {
+  console.log(req)
+  res.send({info: '获取图片成功'})
 })
 
 // 登录接口
@@ -198,7 +205,7 @@ router.get('/api/images', (req, res) => {
 
 // TODO: 上传图片接口
 router.post('/api/addImage', (req, res) => {
-
+  console.log(req)
 })
 
 // TODO: 文章详情页接口

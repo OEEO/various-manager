@@ -5,6 +5,7 @@
         <nav>
           <router-link to="/Article">文章</router-link>
           <router-link to="/Photos">图片</router-link>
+          <router-link to="/Post">富文本编辑器</router-link>
         </nav>
       </header>
       <main>

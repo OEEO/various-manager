@@ -10,6 +10,11 @@ import './ui/element-ui'
 import store from './store'
 import cookie from './utils/cookie'
 
+// require styles
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
 axios.defaults.baseURL = 'http://127.0.0.1/api'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 // axios.defaults.transformRequest = (data) => {
@@ -18,6 +23,7 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 // }
 // axios 拦截器
 axios.interceptors.request.use(function (config) {
+  console.log(config.method)
   let isFromLogin = config.url.indexOf('/login') !== -1
   if (!isFromLogin) {
     // 如果请求不是来自login，请求添加 token
