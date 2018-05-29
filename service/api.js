@@ -1,4 +1,6 @@
 const express = require('express')
+const path = require('path')
+const fs = require('fs')
 const router = express.Router()
 const moment = require('moment')
 const mongoose = require('mongoose')
@@ -14,7 +16,8 @@ const Article = mongoose.model('article', articleSchema)
 // user数据模型
 const userSchema = mongoose.Schema({
   username: String,
-  password: String
+  password: String,
+  logindate: String
 })
 const User = mongoose.model('user', userSchema)
 
@@ -43,21 +46,46 @@ router.get('/', (req, res) => {
 
 // 富文本编辑器
 router.post('/api/newPost', (req, res) => {
-  console.log(req)
-  res.send({info: '获取图片成功'})
+  const form = new formidable.IncomingForm()
+  form.uploadDir = path.resolve(__dirname, '../static/uploads/images')
+  form.keepExtensions = true
+  form.multiples = true
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      console.log(err)
+    } else {
+      let time = moment().format('YYYY-MM-DD-HH-mm-ss')
+      console.log(time)
+      let oldpath = files.img.path
+      let newpath = path.join(path.dirname(oldpath), time + files.img.name)
+      console.log(newpath)
+      fs.rename(oldpath, newpath, (err) => {
+        if (err) {
+          throw err
+        }
+        let url = newpath.split('Express02')[1].replace(/\\/g, '/')
+        res.send({
+          url: url
+        })
+      })
+    }
+  })
 })
 
 // 登录接口
 router.post('/api/login', (req, res) => {
   let username = req.body.username
   let password = req.body.password
-  User.findOne({
+  User.findOneAndUpdate({
     username: username,
     password: password
+  }, {
+    logindate: moment().format('YYYY-MM-DD HH:mm:ss')
   })
     .then(data => {
       if (data) {
         let token = jwt.sign({ username: username }, 'isUserLogin', {expiresIn: 30000})
+
         res.send({
           success: 'success',
           username: username,
@@ -74,6 +102,11 @@ router.post('/api/login', (req, res) => {
     .catch(error => {
       console.log('发生错误', error)
     })
+})
+
+// 退出接口
+router.post('/api/logout', (req, res) => {
+
 })
 
 // 验证token

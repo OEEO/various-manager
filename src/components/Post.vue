@@ -19,7 +19,7 @@ import {container, ImageExtend, QuillWatch} from 'quill-image-extend-module'
 Quill.register('modules/ImageExtend', ImageExtend)
 export default {
   components: {quillEditor},
-  data() {
+  data () {
     return {
       content: '',
       // 富文本框参数设置
@@ -30,7 +30,8 @@ export default {
             name: 'img',
             action: 'http://127.0.0.1/api/newPost',
             response: (res) => {
-              return res.info
+              console.log(res.url)
+              return res.url
             }
           },
           toolbar: {
@@ -48,6 +49,10 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style lang="scss">
+  .post{
+    .ql-editor{
+      min-height: 400px;
+    }
+  }
 </style>
