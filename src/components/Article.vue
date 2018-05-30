@@ -111,6 +111,7 @@ export default {
     }
   },
   beforeMount () {
+    console.log('beforeMount')
     this.getArticle()
   }
 }

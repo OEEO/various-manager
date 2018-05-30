@@ -4,41 +4,52 @@ import Login from '@/components/Login'
 import Article from '@/components/Article'
 import Photos from '@/components/Photos'
 import Home from '@/components/Home'
+import Index from '@/components/Index'
 import ArticleDetail from '@/components/ArticleDetail'
 import Post from '@/components/Post'
+import UserSetting from '@/components/user/Setting'
 
 Vue.use(Router)
 
 export default new Router({
+  // mode: history,
   routes: [
     {
       path: '/',
+      redirect: '/Index'
+    },
+    {
+      path: '/user/login',
       name: 'Login',
       component: Login
     },
     {
-      path: '/login',
-      name: 'Login',
-      component: Login
-    },
-    {
-      path: '/Home/:username',
+      path: '/',
       component: Home,
       children: [
         {
-          path: '/Article',
+          path: 'Index',
+          name: 'Index',
+          component: Index
+        },
+        {
+          path: 'Article',
           name: 'Article',
           component: Article
         },
         {
-          path: '/Photos',
+          path: 'Photos',
           name: 'Photos',
           component: Photos
         },
         {
-          path: '/Post',
+          path: 'Post',
           name: 'Post',
           component: Post
+        },
+        {
+          path: 'user/setting',
+          component: UserSetting
         }
       ]
     },

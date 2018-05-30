@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken')
 const formidable = require('formidable')
 // article数据模型
 const articleSchema = mongoose.Schema({
+  username: String,
+  author: String,
   title: String,
   content: String
 })
@@ -16,6 +18,7 @@ const Article = mongoose.model('article', articleSchema)
 // user数据模型
 const userSchema = mongoose.Schema({
   username: String,
+  surname: String,
   password: String,
   logindate: String
 })
@@ -76,6 +79,7 @@ router.post('/api/newPost', (req, res) => {
 router.post('/api/login', (req, res) => {
   let username = req.body.username
   let password = req.body.password
+  console.log(username, password)
   User.findOneAndUpdate({
     username: username,
     password: password
@@ -84,7 +88,7 @@ router.post('/api/login', (req, res) => {
   })
     .then(data => {
       if (data) {
-        let token = jwt.sign({ username: username }, 'isUserLogin', {expiresIn: 30000})
+        let token = jwt.sign({ username: username, surname: username }, 'isUserLogin', {expiresIn: 60 * 60 * 24 * 7})
 
         res.send({
           success: 'success',
@@ -109,6 +113,21 @@ router.post('/api/logout', (req, res) => {
 
 })
 
+// 首页获取所有文章
+router.get('/api/allArticle', (req, res) => {
+  Article.find((err, articles) => {
+    if (err) {
+      console.log(err)
+      res.send({
+        fail: 'fail',
+        msg: '没有文章'
+      })
+    } else {
+      res.send(JSON.stringify(articles))
+    }
+  })
+})
+
 // 验证token
 router.all('*', (req, res, next) => {
   // 忽略options请求
@@ -124,13 +143,16 @@ router.all('*', (req, res, next) => {
         console.log('token失效', err)
         reject(err)
       } else {
-        console.log('token有效', decode)
-        resolve()
+        console.log('token有效')
+        console.log(decode.username)
+        resolve(decode)
       }
     })
   })
   jwtVerifyPromise
-    .then(() => {
+    .then(decode => {
+      req.curUsername = decode.username
+      req.curSurname = decode.surname
       next()
     })
     .catch(err => {
@@ -139,6 +161,17 @@ router.all('*', (req, res, next) => {
         msg: err.JsonWebTokenError
       })
     })
+})
+
+// 获取用户资料
+router.get('/api/getUserProfiles', (req, res) => {
+  let username = req.curUsername
+  let surname = req.curSurname
+  res.send({
+    success: 'success',
+    username: username,
+    surname: surname
+  })
 })
 
 // 注册前查询用户名是否已存在
@@ -172,9 +205,11 @@ router.get('/api/username', (req, res) => {
 // 注册接口
 router.post('/api/register', (req, res) => {
   let username = req.body.username
+  let surname = req.body.surname
   let password = req.body.password
   let newUser = new User({
     username: username,
+    surname: surname,
     password: password
   })
   let addUser = new Promise((resolve, reject) => {
@@ -209,7 +244,8 @@ router.post('/api/register', (req, res) => {
 
 // 获取文章接口
 router.get('/api/article', (req, res) => {
-  Article.find((err, articles) => {
+  let username = req.curSurname
+  Article.find({username: username}, (err, articles) => {
     if (err) {
       console.log(err)
       res.send({
@@ -256,10 +292,14 @@ router.get('/api/articleDetail', (req, res) => {
 // 添加文章接口
 router.post('/api/createArticle', (req, res) => {
   let article = req.body
+  let username = req.curUsername
+  let author = req.curSurname ? req.curSurname : username
   let title = article.title
   let content = article.content
   let insertData = new Promise((resolve, reject) => {
     const newArticle = new Article({
+      author: author,
+      username: username,
       title: title,
       content: content
     })

@@ -47,9 +47,6 @@ axios.interceptors.response.use(function (response) {
   if (response.data.tokenIsOutdated) {
     console.log('token过期，请重新登录')
     cookie.clear('token')
-    router.push({
-      path: '/login'
-    })
   }
   return response
 }, function (error) {

@@ -22,7 +22,8 @@ export default {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: $mainFontColor;
-    width: 1200px;
+    min-width: 600px;
+    max-width: 1200px;
     margin: auto;
   }
 </style>

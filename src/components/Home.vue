@@ -3,112 +3,219 @@
       <header>
         <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
           <el-menu-item index="1">
-            <router-link to="/Article">文章</router-link>
+            <router-link to="/">首页</router-link>
           </el-menu-item>
           <el-menu-item index="2">
             <router-link to="/Photos">相册</router-link>
           </el-menu-item>
           <el-menu-item index="3">
+            <router-link to="/Article">我的文章</router-link>
+          </el-menu-item>
+          <el-menu-item index="4">
             <router-link to="/Post">写文章</router-link>
           </el-menu-item>
         </el-menu>
         <div class="user-box">
-          <div v-if="isLogin">
-            <div class="userAvatar">
-              <img :src="userAvatar" alt="头像">
+          <template v-if="isLogin === 1">
+            <div
+              class="userAvatar"
+              @mouseenter="showProfiles = true"
+              @mouseleave="showProfiles = false">
+              <!--<img :src="userAvatar" alt="头像">-->
+              <p>{{ profiles.username }}</p>
+              <div class="profiles" v-if="showProfiles">
+                <el-button type="" class="item" @click="goToUserSetting">个人设置</el-button>
+                <el-button type="danger" class="item" @click="logout">退出登录</el-button>
+              </div>
             </div>
-          </div>
-          <div v-else>
+          </template>
+          <template v-else-if="isLogin === 0">
             <el-button type="success" @click="showLoginModal">登录</el-button>
             <el-button type="" @click="showRegisterModal">注册</el-button>
-          </div>
+          </template>
         </div>
       </header>
       <main>
         <router-view></router-view>
       </main>
       <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
-        <el-form :model="form">
-          <el-form-item label="手机号 或 Email" :label-width="formLabelWidth">
-            <el-input v-model="form.username" auto-complete="off"></el-input>
-          </el-form-item>
-          <el-form-item label="密码" :label-width="formLabelWidth">
-            <el-input v-model="form.password" auto-complete="off"></el-input>
-          </el-form-item>
-          <div v-if="curDialog === 'register'">
-            <el-form-item label="确认密码" :label-width="formLabelWidth">
-              <el-input v-model="form.conPassword" auto-complete="off"></el-input>
+        <el-form :model="loginForm" :rules="rules2" ref="loginForm" label-width="" class="login-form">
+          <template v-if="curDialog === 'register'">
+            <el-form-item label="昵称" prop="surname">
+              <el-input type="text" v-model="loginForm.surname" auto-complete="off"></el-input>
             </el-form-item>
-          </div>
+          </template>
+          <el-form-item label="手机号 或 Email" prop="username">
+            <el-input type="text" v-model="loginForm.username" auto-complete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="密码" prop="pass">
+            <el-input type="password" v-model="loginForm.pass" auto-complete="off"></el-input>
+          </el-form-item>
+          <template v-if="curDialog === 'register'">
+            <el-form-item label="确认密码" prop="checkPass">
+              <el-input type="password" v-model="loginForm.checkPass" auto-complete="off"></el-input>
+            </el-form-item>
+          </template>
+          <el-form-item class="footer-btn">
+            <div v-if="curDialog === 'register'">
+              <el-button type="success" @click="submitForm('loginForm')">注册</el-button>
+            </div>
+            <div v-else>
+              <el-button type="success" @click="submitForm('loginForm')">登录</el-button>
+            </div>
+          </el-form-item>
         </el-form>
-        <span slot="footer" class="dialog-footer">
-          <div v-if="curDialog === 'login'">
-            <el-button type="success" @click="login">登录</el-button>
-          </div>
-          <div v-else>
-            <el-button type="success" @click="register">注册</el-button>
-          </div>
-        </span>
       </el-dialog>
     </div>
 </template>
 
 <script>
+import cookie from "../utils/cookie"
+
 export default {
   name: 'Home',
   data () {
+    const checkUsername = (rule, value, callback) => {
+      if (value === '') {
+        return callback(new Error('请输入用户名！'))
+      } else {
+        let reEmail = /^\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}$/
+        let rePhone = /^1\d{10}$/
+        if (reEmail.test(value) || rePhone.test(value)) {
+          callback()
+        } else {
+          callback(new Error('请输入手机号或邮箱！'))
+        }
+      }
+    }
+    const validatePass = (rule, value, callback) => {
+      if (value === null) {
+        callback(new Error('帐号或密码错误'))
+        return
+      }
+      if (value === '') {
+        callback(new Error('请输入密码'))
+      } else {
+        if (this.curDialog === 'register' && this.loginForm.checkPass !== '') {
+          this.$refs.loginForm.validateField('checkPass')
+        }
+        callback()
+      }
+    }
+    const validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.loginForm.pass) {
+        callback(new Error('两次输入的密码不一致'))
+      } else {
+        callback()
+      }
+    }
     return {
-      isLogin: false,
-      activeIndex: '1',
+      profiles: {
+        username: ''
+      },
+      showProfiles: false,
+      isLogin: '', // 1 表示登录，0 表示未登录
+      activeIndex: '1', // 菜单初始位置
       dialogTitle: '',
       curDialog: '',
       dialogFormVisible: false,
-      form: {
+      loginForm: {
         username: '',
-        password: '',
-        reConPassword: ''
+        surname: '',
+        pass: '',
+        checkPass: ''
       },
-      formLabelWidth: ''
+      rules2: {
+        username: [
+          {validator: checkUsername, trigger: 'blur'}
+        ],
+        pass: [
+          {validator: validatePass, trigger: 'blur'}
+        ],
+        checkPass: [
+          {validator: validatePass2, trigger: 'blur'}
+        ]
+      }
     }
   },
   computed: {
 
   },
   methods: {
+    goToUserSetting () {
+      this.$router.push({
+        path: '/user/setting'
+      })
+    },
+    submitForm (formName) {
+      let that = this
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (that.curDialog === 'register') {
+            that.register()
+          } else {
+            that.login()
+          }
+        } else {
+          return false
+        }
+      })
+    },
+    checkToken () {
+      let that = this
+      this.axios.get('/getUserProfiles')
+        .then(res => {
+          if (res.data.success) {
+            that.isLogin = 1
+            that.profiles.username = res.data.username
+          } else {
+            that.isLogin = 0
+          }
+        })
+    },
     login () {
       let data = {
-        username: this.form.username,
-        password: this.form.password
+        username: this.loginForm.username,
+        password: this.loginForm.pass
       }
       let that = this
       this.axios.post('/login', data)
         .then(res => {
           if (res.data.success) {
             // 隐藏模态框
-            this.dialogFormVisible = false
+            that.dialogFormVisible = false
             console.log('登录成功')
             let username = res.data.username
             let token = res.data.token
             console.log(token)
             cookie.set('token', token)
-            that.$router.push({
-              path: '/Home/' + username,
-              params: {
-                username: username
-              }
-            })
+            that.checkToken()
+            // that.$router.push({
+            //   path: '/Home/' + username,
+            //   params: {
+            //     username: username
+            //   }
+            // })
           } else {
-            alert('登录失败')
+            that.$message('帐号或密码错误')
           }
         })
         .catch(error => {
           console.log(error)
         })
     },
+    logout () {
+      this.showProfiles = false
+      cookie.clear('token')
+      this.isLogin = 0
+    },
     register () {
-      let reUsername = this.form.username
-      let rePassword = this.form.password
-      let reConPassword = this.form.conPassword
+      let reUsername = this.loginForm.username
+      let reSurname = this.loginForm.reSurname
+      let rePassword = this.loginForm.pass
+      let reConPassword = this.loginForm.checkPass
       let that = this
       if (rePassword !== reConPassword) {
         that.$message.error('两次输入密码不一样')
@@ -124,6 +231,7 @@ export default {
           console.log(res.data.msg)
           that.axios.post('/register', {
             username: reUsername,
+            surname: reSurname,
             password: rePassword
           })
             .then(res => {
@@ -143,14 +251,19 @@ export default {
     showRegisterModal () {
       this.dialogTitle = '注册'
       this.curDialog = 'register'
+      this.$refs['loginForm'].resetFields()
       this.dialogFormVisible = true
     }
   },
   beforeMount () {
-
+    console.log('beforeMount')
+    this.checkToken()
   },
   mounted () {
-    this.$message('你好啊')
+
+  },
+  beforeUpdate () {
+
   }
 }
 </script>
@@ -177,13 +290,35 @@ export default {
         }
       }
     }
-    .userAvatar{
-      width: 60px;
-      height: 60px;
-      -webkit-border-radius: 50%;
-      -moz-border-radius: 50%;
-      border-radius: 50%;
-      background-color: #eee;
+    .user-box{
+      display: flex;
+      align-items: center;
+      .userAvatar{
+        position: relative;
+        cursor: pointer;
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        font-size: 16px;
+        -webkit-border-radius: 50%;
+        -moz-border-radius: 50%;
+        border-radius: 50%;
+        background-color: #eee;
+        .profiles{
+          position: absolute;
+          z-index: 50;
+          top: 60px;
+          right: 10px;
+          width: 250px;
+          height: 200px;
+          background-color: #fff;
+          border: 1px solid #eee;
+          box-shadow: 1px 1px 1px 1px rgba(125, 125, 125, 0.2);
+          button{
+            width: 90%;
+          }
+        }
+      }
     }
   }
   .el-dialog{
@@ -194,16 +329,21 @@ export default {
       background-color: #f3f3f3;
       text-align: left;
       padding: 15px 20px;
-      margin-bottom: 50px;
     }
     .el-dialog__body,
     .el-dialog__footer{
       padding: 0 25%;
     }
     .el-dialog__body{
+      margin: 50px auto;
       .el-form-item__label{
         font-size: 16px;
         font-weight: bold;
+      }
+      .footer-btn{
+        button {
+          width: 100%;
+        }
       }
     }
     .el-dialog__footer {
