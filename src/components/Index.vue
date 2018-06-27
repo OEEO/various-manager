@@ -47,7 +47,7 @@ export default {
     },
     getArticle () {
       let that = this
-      this.axios.get('/allArticle')
+      this.axios.get('/article/all')
         .then(res => {
           console.log(res)
           that.articles = res.data
@@ -63,7 +63,7 @@ export default {
     },
     delThisArticle (id) {
       console.log(id)
-      this.axios.post('/deleteArticle', {
+      this.axios.post('/article/del', {
         id: id
       })
         .then(res => {

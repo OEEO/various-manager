@@ -29,8 +29,9 @@ export default {
     getArticleDetail () {
       let id = this.$route.query.id
       let that = this
-      this.axios.get('/articleDetail?id=' + id)
+      this.axios.get('/article/detail?id=' + id)
         .then(res => {
+          console.log('文章', res.data);
           that.article = res.data
         })
     },

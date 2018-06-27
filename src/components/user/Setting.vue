@@ -21,7 +21,7 @@ export default {
   methods: {
     getUserProfiles () {
       let that = this
-      this.axios.get('/getUserProfiles')
+      this.axios.get('/user/profile')
         .then(res => {
           if (res.data.success) {
             that.isLogin = 1

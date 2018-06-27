@@ -96,7 +96,7 @@ export default {
         console.log('两次输入密码不一样')
         return
       }
-      this.axios.get('/username?username=' + reUsername)
+      this.axios.get('/register/checkname?username=' + reUsername)
         .then(res => {
           console.log(res.data.exist)
           if (res.data.exist) {

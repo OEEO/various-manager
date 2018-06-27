@@ -15,7 +15,7 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 
-axios.defaults.baseURL = 'http://127.0.0.1/api'
+axios.defaults.baseURL = 'http://127.0.0.1:8088/api'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'
 // axios.defaults.transformRequest = (data) => {
 //   console.log(qs.stringify(data))
@@ -23,9 +23,11 @@ axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded
 // }
 // axios 拦截器
 axios.interceptors.request.use(function (config) {
-  console.log(config.method)
-  let isFromLogin = config.url.indexOf('/login') !== -1
-  if (!isFromLogin) {
+  console.log(config)
+  // 非注册，非登录，添加 token
+  let isLogin = config.url.indexOf('/login') !== -1
+  let isRegister = config.url.indexOf('/register') !== -1
+  if (!isLogin && !isRegister) {
     // 如果请求不是来自login，请求添加 token
     let token = cookie.get('token')
     config.headers.Authorization = token

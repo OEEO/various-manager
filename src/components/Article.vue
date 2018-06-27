@@ -10,6 +10,7 @@
           <li
             class="article-item"
             v-for="(item, index) in articles"
+            v-if="articles.length > 0"
             :key="item._id"
             @click="goToArticleDetail(item._id)"
             @mouseenter="articleEnter(index)"
@@ -64,7 +65,7 @@ export default {
     },
     getArticle () {
       let that = this
-      this.axios.get('/article')
+      this.axios.get('/article/user')
         .then(res => {
           console.log(res)
           that.articles = res.data
@@ -83,7 +84,7 @@ export default {
     },
     submitNewArticle () {
       let that = this
-      this.axios.post('/createArticle', {
+      this.axios.post('/article/add', {
         title: that.title,
         content: that.content
       })
@@ -98,7 +99,7 @@ export default {
     },
     delThisArticle (id) {
       console.log(id)
-      this.axios.post('/deleteArticle', {
+      this.axios.post('/article/del', {
         id: id
       })
         .then(res => {

@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import cookie from "../utils/cookie"
+import cookie from '../utils/cookie'
 
 export default {
   name: 'Home',
@@ -165,7 +165,7 @@ export default {
     },
     checkToken () {
       let that = this
-      this.axios.get('/getUserProfiles')
+      this.axios.get('/user/profile')
         .then(res => {
           if (res.data.success) {
             that.isLogin = 1
@@ -221,7 +221,7 @@ export default {
         that.$message.error('两次输入密码不一样')
         return
       }
-      this.axios.get('/username?username=' + reUsername)
+      this.axios.get('/register/checkname?username=' + reUsername)
         .then(res => {
           console.log(res.data.exist)
           if (res.data.exist) {
@@ -235,7 +235,7 @@ export default {
             password: rePassword
           })
             .then(res => {
-              console.log('注册成功')
+              console.log(res.data.msg)
               this.dialogFormVisible = false
             })
         })
@@ -251,7 +251,6 @@ export default {
     showRegisterModal () {
       this.dialogTitle = '注册'
       this.curDialog = 'register'
-      this.$refs['loginForm'].resetFields()
       this.dialogFormVisible = true
     }
   },
