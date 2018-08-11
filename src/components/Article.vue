@@ -125,6 +125,7 @@ export default {
       cursor: pointer;
       list-style: none;
       width: 500px;
+      word-break: break-all;
       margin: 20px auto 0;
       padding: 20px;
       background-color: #aaa;

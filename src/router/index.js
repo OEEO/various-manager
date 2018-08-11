@@ -7,6 +7,7 @@ import Home from '@/components/Home'
 import Index from '@/components/Index'
 import ArticleDetail from '@/components/ArticleDetail'
 import Post from '@/components/Post'
+import Question from '@/components/Question'
 import UserSetting from '@/components/user/Setting'
 
 Vue.use(Router)
@@ -46,6 +47,11 @@ export default new Router({
           path: 'Post',
           name: 'Post',
           component: Post
+        },
+        {
+          path: 'Question',
+          name: 'Question',
+          component: Question
         },
         {
           path: 'user/setting',

@@ -14,16 +14,20 @@
           <el-menu-item index="4">
             <router-link to="/Post">写文章</router-link>
           </el-menu-item>
+          <el-menu-item index="5">
+            <router-link to="/Question">问答系统</router-link>
+          </el-menu-item>
         </el-menu>
         <div class="user-box">
+          <!--已登录-->
           <template v-if="isLogin === 1">
             <div
               class="userAvatar"
               @mouseenter="showProfiles = true"
               @mouseleave="showProfiles = false">
-              <!--<img :src="userAvatar" alt="头像">-->
-              <p>{{ profiles.username }}</p>
-              <div class="profiles" v-if="showProfiles">
+              <img :src="profiles.avatar" alt="头像">
+              <div class="profiles" v-show="showProfiles">
+                <div class="username">用户：{{ profiles.username }}</div>
                 <el-button type="" class="item" @click="goToUserSetting">个人设置</el-button>
                 <el-button type="danger" class="item" @click="logout">退出登录</el-button>
               </div>
@@ -36,7 +40,7 @@
         </div>
       </header>
       <main>
-        <router-view></router-view>
+        <router-view :profiles="profiles"></router-view>
       </main>
       <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible">
         <el-form :model="loginForm" :rules="rules2" ref="loginForm" label-width="" class="login-form">
@@ -113,11 +117,11 @@ export default {
     }
     return {
       profiles: {
-        username: ''
+        username: '',
+        avatar: ''
       },
       showProfiles: false,
       isLogin: '', // 1 表示登录，0 表示未登录
-      activeIndex: '1', // 菜单初始位置
       dialogTitle: '',
       curDialog: '',
       dialogFormVisible: false,
@@ -141,7 +145,20 @@ export default {
     }
   },
   computed: {
-
+    activeIndex () {
+      let curRouter = this.$route.path
+      let result = '1'
+      if (curRouter.indexOf('/Photos') !== -1) {
+        result = '2'
+      } else if (curRouter.indexOf('/Article') !== -1) {
+        result = '3'
+      } else if (curRouter.indexOf('/Post') !== -1) {
+        result = '4'
+      } else if (curRouter.indexOf('/Question') !== -1) {
+        result = '5'
+      }
+      return result
+    }
   },
   methods: {
     goToUserSetting () {
@@ -165,11 +182,18 @@ export default {
     },
     checkToken () {
       let that = this
+      let token = cookie.get('token')
+      if (!token) {
+        console.log('自动登录失败')
+        that.isLogin = 0
+        return
+      }
       this.axios.get('/user/profile')
         .then(res => {
           if (res.data.success) {
             that.isLogin = 1
             that.profiles.username = res.data.username
+            that.profiles.avatar = res.data.avatar
           } else {
             that.isLogin = 0
           }
@@ -187,7 +211,7 @@ export default {
             // 隐藏模态框
             that.dialogFormVisible = false
             console.log('登录成功')
-            let username = res.data.username
+            // let username = res.data.username
             let token = res.data.token
             console.log(token)
             cookie.set('token', token)
@@ -303,8 +327,13 @@ export default {
         -moz-border-radius: 50%;
         border-radius: 50%;
         background-color: #eee;
+        img {
+          width: 100%;
+          border-radius: 50%;
+        }
         .profiles{
           position: absolute;
+          text-align: center;
           z-index: 50;
           top: 60px;
           right: 10px;
@@ -313,8 +342,12 @@ export default {
           background-color: #fff;
           border: 1px solid #eee;
           box-shadow: 1px 1px 1px 1px rgba(125, 125, 125, 0.2);
+          .username {
+            font-size: 14px;
+          }
           button{
             width: 90%;
+            margin-left: 0;
           }
         }
       }

@@ -7,8 +7,7 @@
         <h2>{{article.title}}</h2>
       </header>
       <main>
-        <p>{{article.content}}</p>
-        <img :src="article.img" :alt="article.imgTitle" class="img">
+        <div class="content-wrap" v-html="article.content"></div>
       </main>
     </div>
     <div v-else>
@@ -31,7 +30,7 @@ export default {
       let that = this
       this.axios.get('/article/detail?id=' + id)
         .then(res => {
-          console.log('文章', res.data);
+          console.log('文章', res.data)
           that.article = res.data
         })
     },
@@ -67,6 +66,21 @@ export default {
       width: 500px;
       display: block;
       margin: 30px auto 0;
+    }
+    .content-wrap {
+      width: 1200px;
+    }
+  }
+</style>
+
+<style lang="scss">
+  .article-detail {
+    text-align: left;
+    .content-wrap {
+      width: 1200px;
+      img {
+        max-width: 100%;
+      }
     }
   }
 </style>

@@ -1,9 +1,13 @@
 import Vue from 'vue'
 import {
   Button,
+  Radio,
+  RadioGroup,
   Form,
   FormItem,
+  Upload,
   Input,
+  InputNumber,
   Tabs,
   TabPane,
   Menu,
@@ -21,9 +25,13 @@ import {
 } from 'element-ui'
 
 Vue.use(Button)
+Vue.use(Radio)
+Vue.use(RadioGroup)
 Vue.use(Form)
 Vue.use(FormItem)
+Vue.use(Upload)
 Vue.use(Input)
+Vue.use(InputNumber)
 Vue.use(Tabs)
 Vue.use(TabPane)
 Vue.use(Menu)

@@ -12,9 +12,9 @@
           @click="goToArticleDetail(item._id)"
           @mouseenter="articleEnter(index)"
           @mouseleave="articleLeave">
-          <h2>{{ item.title }}</h2>
+          <h2>{{ item.title ? item.title : '没有标题' }}</h2>
           <p>{{ item.author }}</p>
-          <p>{{ item.content }}</p>
+          <p class="content">{{ item.content }}</p>
           <el-button
             type="danger"
             class="del-article-btn"
@@ -47,7 +47,13 @@ export default {
     },
     getArticle () {
       let that = this
-      this.axios.get('/article/all')
+      this.axios.get('/article/all', {
+        params: {
+          username: '王朝',
+          age: 18,
+          sex: 'man'
+        }
+      })
         .then(res => {
           console.log(res)
           that.articles = res.data
@@ -96,6 +102,11 @@ export default {
       margin: 20px auto 0;
       padding: 20px;
       background-color: #eee;
+      .content {
+        white-space:nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
       .del-article-btn {
         position: absolute;
         right: 30px;
