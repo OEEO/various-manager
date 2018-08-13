@@ -6,7 +6,6 @@ import router from './router'
 import axios from 'axios'
 import qs from 'qs'
 import VueAxios from 'vue-axios'
-import './ui/element-ui'
 import store from './store'
 import cookie from './utils/cookie'
 
@@ -14,6 +13,7 @@ import cookie from './utils/cookie'
 import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
+import './ui/element-ui'
 // 正式
 // axios.defaults.baseURL = 'http://www.wangchaozhen.com:8088/api'
 // 测试
@@ -32,18 +32,14 @@ axios.interceptors.request.use(function (config) {
   // 非注册，非登录，添加 token
   let isLogin = config.url.indexOf('/login') !== -1
   let isRegister = config.url.indexOf('/register') !== -1
-
-  let isWxLogin = config.url.indexOf('/wxlogin/manual') !== -1
-  if (!isLogin && !isRegister && !isWxLogin) {
+  if (!isLogin && !isRegister) {
     // 如果请求不是来自login，请求添加 token
     let token = cookie.get('token')
     config.headers.Authorization = token
   }
   // 转为 urlencoded、encodeURI
   if (config.method.toLowerCase() === 'post' && !(config.data instanceof FormData)) {
-    console.log(config.data)
-    // config.data = qs.stringify(config.data)
-    console.log(config.data)
+    config.data = qs.stringify(config.data)
   }
   console.log('请求', config)
   return config

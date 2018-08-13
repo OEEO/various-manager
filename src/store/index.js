@@ -5,11 +5,13 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    token: ''
+    user: {
+      isLogin: false,
+      username: '',
+      avatar: ''
+    }
   },
   mutations: {
-    setToken (state, item) {
-      state.token = item.token
-    }
+
   }
 })

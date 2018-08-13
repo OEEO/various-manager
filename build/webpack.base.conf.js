@@ -3,6 +3,7 @@ const path = require('path')
 const utils = require('./utils')
 const config = require('../config')
 const vueLoaderConfig = require('./vue-loader.conf')
+let pathToCommon =  path.resolve(__dirname, '../src/common.js');
 
 function resolve (dir) {
   return path.join(__dirname, '..', dir)
@@ -22,7 +23,8 @@ const createLintingRule = () => ({
 module.exports = {
   context: path.resolve(__dirname, '../'),
   entry: {
-    app: './src/main.js'
+    app: './src/main.js',
+    common: [pathToCommon]
   },
   output: {
     path: config.build.assetsRoot,
