@@ -18,38 +18,27 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'index',
       component: index,
       children: [
         {
           path: '',
-          redirect: '/article/list'
+          redirect: 'article/list'
         },
         // 文章相关
         {
-          path: 'article',
-          name: 'article',
-          children: [
-            {
-              path: '',
-              redirect: '/article/list'
-            },
-            {
-              path: 'list',
-              name: 'articleList',
-              component: articleList
-            },
-            {
-              path: 'add',
-              name: 'articleAdd',
-              component: articleAdd
-            },
-            {
-              path: 'detail',
-              name: 'articleDetail',
-              component: articleDetail
-            }
-          ]
+          path: 'article/list',
+          name: 'articleList',
+          component: articleList
+        },
+        {
+          path: 'article/add',
+          name: 'articleAdd',
+          component: articleAdd
+        },
+        {
+          path: 'article/detail',
+          name: 'articleDetail',
+          component: articleDetail
         },
         {
           path: 'albums',
@@ -63,19 +52,14 @@ export default new Router({
         },
         // 用户相关
         {
-          path: 'user',
-          children: [
-            {
-              path: 'setting',
-              name: 'userSetting',
-              component: userSetting
-            },
-            {
-              path: 'login',
-              name: 'login',
-              component: login
-            }
-          ]
+          path: 'user/setting',
+          name: 'userSetting',
+          component: userSetting
+        },
+        {
+          path: 'user/login',
+          name: 'login',
+          component: login
         }
       ]
     }

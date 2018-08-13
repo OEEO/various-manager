@@ -1,16 +1,16 @@
 <template>
-  <div class="index">
+  <div class="article-list-page">
     <header>
       <h2>文章列表</h2>
     </header>
     <main>
-      <ul v-if="articles.length > 0">
+      <ul v-if="articles.length > 0" class="article-list">
         <li
           class="article-item"
           v-for="(item, index) in articles"
           :key="item._id"
           @click="goToArticleDetail(item._id)"
-          @mouseenter="articleEnter(article)"
+          @mouseenter="articleEnter(index)"
           @mouseleave="articleLeave">
           <h2>{{ item.title ? item.title : '没有标题' }}</h2>
           <p>{{ item.author }}</p>
@@ -18,7 +18,7 @@
           <el-button
             type="danger"
             class="del-article-btn"
-            v-show="curIndex === article"
+            v-show="curIndex === index"
             @click.stop="delThisArticle(item._id)">删除</el-button>
         </li>
       </ul>
@@ -90,11 +90,14 @@ export default {
 </script>
 
 <style lang="scss">
-  .index{
+  .article-list-page{
     text-align: left;
     header{
       h2{
       }
+    }
+    .article-list {
+      padding-left: 0;
     }
     .article-item{
       position: relative;

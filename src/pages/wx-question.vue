@@ -30,13 +30,13 @@
       </div>
     </div>
     <div class="question-wrap">
-      <el-button @click="getQuestion(getLevel)">获取题库</el-button>
       <span>题目等级: </span><el-input-number v-model="getLevel" controls-position="right" :min="1" :max="10"></el-input-number>
+      <el-button @click="getQuestion(getLevel)">获取题库</el-button>
       <div class="questions">
         <div class="question-item"
              v-for="(question, index) in questions"
              :key = "index">
-          <h1>题目：{{ question.title }}</h1>
+          <h3>题目：{{ question.title }}</h3>
           <p v-for="(option, index) in question.answers" :key="index">选项{{ index + 1 }}: {{ option }}</p>
           <p>正确答案: {{ question.answers[question.correctIndex] }}</p>
         </div>
@@ -47,7 +47,7 @@
 
 <script>
 export default {
-  name: 'question',
+  name: 'wx-question',
   data () {
     return {
       socket: null,

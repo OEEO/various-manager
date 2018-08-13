@@ -17,7 +17,7 @@ export default {
   components: { comHeader },
   data () {
     return {
-      transitionName: 'fade',
+      transitionName: 'fade'
     }
   },
   computed: {

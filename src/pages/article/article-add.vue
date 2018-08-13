@@ -12,7 +12,7 @@
     </div>
     <div v-else>
       <h1>提交成功</h1>
-      <el-button @click="editorShow = true">再改一篇</el-button>
+      <el-button @click="editorShow = true">再写一篇</el-button>
     </div>
   </div>
 </template>
@@ -25,7 +25,6 @@ Quill.register('modules/ImageExtend', ImageExtend)
 export default {
   name: 'article-all',
   components: {quillEditor},
-  props: ['profiles'],
   data () {
     return {
       content: '',
@@ -37,7 +36,7 @@ export default {
           ImageExtend: {
             loading: true,
             name: 'img',
-            action: `https://www.wangchaozhen.com/api/uploads/post?username=${this.profiles.username}`,
+            action: `https://www.wangchaozhen.com/api/uploads/post?username=${this.$store.state.user.username}`,
             response: (res) => {
               console.log(res.url)
               return res.url
@@ -72,8 +71,13 @@ export default {
         })
     }
   },
-  updated () {
-    console.log(this.content)
+  computed: {
+    user () {
+      return this.$store.state.user
+    }
+  },
+  mounted () {
+    console.log('当前用户', this.user)
   }
 }
 </script>
