@@ -1,0 +1,1 @@
+{"version":3,"sources":["webpack:///./src/common.js"],"names":["__webpack_require__"],"mappings":"8EAAAA,EAAQ,QACRA,EAAQ","file":"static/js/common.4ac5159dc4085e7ac003.js","sourcesContent":["require('../static/css/normalize.css')\r\nrequire('../static/css/transition.css')\r\n\n\n\n// WEBPACK FOOTER //\n// ./src/common.js"],"sourceRoot":""}
