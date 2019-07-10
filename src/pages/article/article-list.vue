@@ -62,7 +62,7 @@ export default {
     },
     goToArticleDetail (id) {
       this.$router.push({
-        path: '/ArticleDetail',
+        path: '/article/detail',
         query: {
           id: id
         }
