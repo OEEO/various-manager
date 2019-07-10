@@ -15,7 +15,7 @@ import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import './ui/element-ui'
 // 正式
-axios.defaults.baseURL = 'http://www.wangchaozhen.com:8088/api'
+axios.defaults.baseURL = 'http://lhrooh.com:8088/api'
 // 测试
 // axios.defaults.baseURL = 'http://127.0.0.1:8088/api'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded'

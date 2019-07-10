@@ -36,7 +36,7 @@ export default {
           ImageExtend: {
             loading: true,
             name: 'img',
-            action: `https://www.wangchaozhen.com/api/uploads/post?username=${this.$store.state.user.username}`,
+            action: `https://www.lhrooh.com/api/uploads/post?username=${this.$store.state.user.username}`,
             response: (res) => {
               console.log(res.url)
               return res.url
